@@ -6,13 +6,13 @@ import (
 	"net/http"
 	"strings"
 
-	p "./plugins"
+	p "github.com/x3rmrf/chobot/plugins"
 )
 
 var c Config
 
 func main() {
-	configfile := flag.String("configfile", "/opt/madchobot/madchobot.conf", "--configfile=/path/to/chobot.conf")
+	configfile := flag.String("configfile", "/opt/chobot/chobot.conf", "--configfile=/path/to/chobot.conf")
 	flag.Parse()
 	c.SetConfig(*configfile)
 	GetUpdates()
