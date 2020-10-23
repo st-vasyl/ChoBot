@@ -20,7 +20,6 @@ func main() {
 }
 
 func GetUpdates() {
-	http.HandleFunc("/skype/updates", SkypeGetUpdates)
 	http.HandleFunc("/telegram/updates", TelegramGetUpdates)
 	err := http.ListenAndServe(":9001", nil)
 	if err != nil {

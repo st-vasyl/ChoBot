@@ -1,32 +1,21 @@
 package main
 
 import (
-	"os"
 	"fmt"
+	"os"
+
 	"github.com/BurntSushi/toml"
 )
 
 type Config struct {
 	TelegramApiKey string
-	GoogleSafe string
-	SkypeAppId string
-	SkypeSecret string
-	SkypeToken string
+	GoogleSafe     string
 	ConfigGoogle
-	SkypeConfig
 }
 
 type ConfigGoogle struct {
 	GoogleSearchSafe string
 }
-
-type SkypeConfig struct {
-	TokenType string 		`json:"token_type"`
-	ExpiresIn int			`json:"expires_in"`
-	ExtExpiresIn int		`json:"ext_expires_in"`
-	AccessToken string		`json:"access_token"`
-}
-
 
 func (conf *Config) SetConfig(configfile string) error {
 	_, err := os.Stat(configfile)
