@@ -10,11 +10,6 @@ import (
 type Config struct {
 	TelegramApiKey string
 	GoogleSafe     string
-	ConfigGoogle
-}
-
-type ConfigGoogle struct {
-	GoogleSearchSafe string
 }
 
 func (conf *Config) SetConfig(configfile string) error {
@@ -28,6 +23,5 @@ func (conf *Config) SetConfig(configfile string) error {
 		fmt.Printf("Failed to parse config file %s \n", configfile)
 	}
 	//log.Print(config.Index)
-	c.ConfigGoogle.GoogleSearchSafe = "active"
 	return nil
 }

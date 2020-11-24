@@ -3,10 +3,11 @@ package main
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
+	"net/url"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type User struct {
@@ -55,29 +56,31 @@ type SendMessage struct {
 	Text    string `json:"text"`
 }
 
-func (m *SendMessage) SendMessage() {
+func (m *SendMessage) SendMessage(c Config) {
 	data, _ := json.Marshal(m)
-	client := new(http.Client)
-	postUrl := "https://api.telegram.org/" + c.TelegramApiKey + "/sendMessage"
-
-	req, err := http.NewRequest("POST", postUrl, bytes.NewBuffer(data))
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("User-Agent", "chobot/0.1")
-	if err != nil {
-		fmt.Println("Failed to build request ")
+	reqURL, _ := url.Parse("https://api.telegram.org/" + c.TelegramApiKey + "/sendMessage")
+	req := &http.Request{
+		Method: "POST",
+		URL:    reqURL,
+		Header: map[string][]string{
+			"Content-Type": {"application/json; charset=UTF-8"},
+		},
+		Body: ioutil.NopCloser(bytes.NewBuffer(data)),
 	}
+	res, err := http.DefaultClient.Do(req)
 
-	resp, err := client.Do(req)
-	defer resp.Body.Close()
 	if err != nil {
-		fmt.Println("Failed to POST method sendMessage ")
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Unable to send message to telegram API")
 	}
-	log.Println(data, req)
-	ioutil.ReadAll(resp.Body)
+	defer res.Body.Close()
+	log.Println(string(data), req)
+	ioutil.ReadAll(res.Body)
 
 }
 
-func TelegramGetUpdates(rw http.ResponseWriter, request *http.Request) {
+func TelegramGetUpdates(rw http.ResponseWriter, request *http.Request, c Config) {
 	var u UpdateResult
 
 	body, _ := ioutil.ReadAll(request.Body)
@@ -85,11 +88,22 @@ func TelegramGetUpdates(rw http.ResponseWriter, request *http.Request) {
 
 	resp, err := ParseRequest(u.Message.Text)
 	if err != nil {
-		log.Printf("Failed to parse search text. Error: %s", err)
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Failed to parse search text")
+	}
+
+	if len(resp) == 0 {
+		resp = "Got empty search result"
 	}
 
 	m := SendMessage{}
 	m.Text = resp
 	m.Chat_id = u.Chat.Id
-	m.SendMessage()
+
+	log.WithFields(log.Fields{
+		"data":    m,
+		"API Key": c.TelegramApiKey,
+	}).Error("Sent message")
+	m.SendMessage(c)
 }

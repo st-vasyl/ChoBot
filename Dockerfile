@@ -1,5 +1,5 @@
 FROM golang:1.14 as build
-WORKDIR /go/src/github.com/x3rmrf/chobot/
+WORKDIR /go/src/github.com/st-vasyl/chobot/
 COPY . .
 RUN go get -d -v github.com/BurntSushi/toml && \
     CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo .
@@ -28,7 +28,7 @@ RUN apk update && \
     mkdir -p /opt/chobot && \
     chown -R chobot:chobot /opt/chobot
 
-COPY --from=build /go/src/github.com/x3rmrf/chobot/chobot /opt/chobot/chobot
+COPY --from=build /go/src/github.com/st-vasyl/chobot/chobot /opt/chobot/chobot
 USER chobot
 WORKDIR /opt/chobot
 
